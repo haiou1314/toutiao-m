@@ -12,7 +12,7 @@
         v-model="mobile"
         name="mobile"
         placeholder="请输入手机号"
-        :rules="userForm.mobile"
+        :rules="mobileRuler"
         maxlength="11"
         type="number"
       >
@@ -24,7 +24,7 @@
         v-model="code"
         name="验证码"
         placeholder="请输入验证码"
-        :rules="userForm.code"
+        :rules="codeRuler"
         maxlength="6"
         type="number"
       >
@@ -57,26 +57,20 @@
         >
       </div>
     </van-form>
+
   </div>
 </template>
 <script>
 import { login, sendSms } from '@/api/user'
+import { mobileRuler, codeRuler } from './ruler'
 export default {
   name: 'Login',
   data () {
     return {
       mobile: '13911111111',
       code: '',
-      userForm: {
-        mobile: [
-          { required: true, message: '请填手机号' },
-          { pattern: /^1[3|5|7|8]\d{9}$/, message: '手机号格式错误' }
-        ],
-        code: [
-          { required: true, message: '请填写验证码' },
-          { pattern: /^\d{6}$/, message: '验证码格式错误' }
-        ]
-      },
+      mobileRuler,
+      codeRuler,
       iscountDownShow: false
     }
   },
@@ -93,30 +87,31 @@ export default {
       try {
         const res = await login(this.mobile, this.code)
         this.$store.commit('setUser', res.data.data)
+        this.$router.push('/profile')
         this.$toast.success('登录成功')
+        console.log(res)
       } catch (error) {
-        if (error.response.status === 400) {
-          this.$toast.fail('手机号或验证码错误')
-        } else {
-          this.$toast.fail('登录失败，请稍后重试')
+        const status = error.response.status
+        let message = '登录失败，请稍后重试'
+        if (status === 400) {
+          message = error.response.data.message
         }
+        this.$toast.fail(message)
       }
     },
     async onSendSms () {
       try {
         await this.$refs.formLogin.validate('mobile')
-      } catch (error) {
-        return console.log('失败')
-      }
-      this.iscountDownShow = true
-      try {
         await sendSms(this.mobile)
-        this.$toast.success('发送成功')
+        this.iscountDownShow = true
       } catch (error) {
-        if (error.response.status === 429) {
-          this.$toast('发送太频繁了，请稍后重试')
+        if (!error.response) {
+          this.$toast.fail(error.response.data.message)
         } else {
-          this.$toast('发送失败，请稍后重试')
+          const status = error.response.status
+          if (status === 404 || status === 429) {
+            this.$toast.fail(error.response.data.message)
+          }
         }
       }
     }

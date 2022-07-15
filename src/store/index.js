@@ -1,12 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getItem, setItem } from '@/utils/storage.js'
+// import { getItem, setItem } from '@/utils/storage.js'
+// import storages from '@/utils/storage.js'
+import { getToken, setToken } from '@/utils'
 
 Vue.use(Vuex)
-const TOKEN_KEY = 'TOUTIAO_USER'
+// const TOKEN_KEY = 'TOUTIAO_USER'
 export default new Vuex.Store({
   state: {
-    user: getItem(TOKEN_KEY)
+    user: getToken()
   },
 
   getters: {
@@ -15,7 +17,8 @@ export default new Vuex.Store({
   mutations: {
     setUser (state, user) {
       state.user = user
-      setItem(TOKEN_KEY, state.user)
+      // storages.set(TOKEN_KEY, state.user)
+      setToken(state.user)
     }
   },
   actions: {
