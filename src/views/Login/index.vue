@@ -57,7 +57,6 @@
         >
       </div>
     </van-form>
-
   </div>
 </template>
 <script>
@@ -87,9 +86,8 @@ export default {
       try {
         const res = await login(this.mobile, this.code)
         this.$store.commit('setUser', res.data.data)
-        this.$router.push('/profile')
+        this.$router.push('/my')
         this.$toast.success('登录成功')
-        console.log(res)
       } catch (error) {
         const status = error.response.status
         let message = '登录失败，请稍后重试'

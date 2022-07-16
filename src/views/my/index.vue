@@ -1,70 +1,127 @@
 <template>
   <div>
-    <div class="header">
-      <div @click="$router.push('/login')" class="headerBar">
-        <img src="@/assets/img/mobile.png" alt="" />
-        <span class="text">登录 / 注册</span>
-      </div>
-    </div>
+    <div class="my">
+      <div class="header" v-if="isLogin">
+        <div class="headerDl">
+          <div>
+            <van-image
+              class="avater"
+              width="66"
+              height="66"
+              round
+              fit="cover"
+              :src="userInfo.photo"
+            />
+            <span class="text">{{ userInfo.name }}</span>
+          </div>
+          <van-button size="mini" class="btn">编辑资料</van-button>
+        </div>
 
-    <div class="header">
-      <div class="headerDl">
-        <div>
-          <van-image
-            class="avater"
-            width="66"
-            height="66"
-            round
-            fit="cover"
-            src="https://img01.yzcdn.cn/vant/cat.jpeg"
-          />
-          <span class="text">黑马头条</span>
+        <div class="box">
+          <div>
+            <p>{{ userInfo.art_count }}</p>
+            <p>头条</p>
+          </div>
+          <div>
+            <p>{{ userInfo.like_count }}</p>
+            <p>关注</p>
+          </div>
+          <div>
+            <p>{{ userInfo.fans_count }}</p>
+            <p>粉丝</p>
+          </div>
+          <div>
+            <p>{{ userInfo.follow_count }}</p>
+            <p>获赞</p>
+          </div>
         </div>
-        <van-button size="mini" class="btn">编辑资料</van-button>
       </div>
 
-      <div class="box">
-        <div>
-          <p>8</p>
-          <p>头条</p>
-        </div>
-        <div>
-          <p>8</p>
-          <p>关注</p>
-        </div>
-        <div>
-          <p>8</p>
-          <p>粉丝</p>
-        </div>
-        <div>
-          <p>8</p>
-          <p>获赞</p>
+      <div class="header" v-else>
+        <div @click="$router.push('/login')" class="headerBar">
+          <img src="@/assets/img/mobile.png" alt="" />
+          <span class="text">登录 / 注册</span>
         </div>
       </div>
+
+      <!-- 收藏 -->
+      <van-grid :column-num="2" class="item" clickable>
+        <van-grid-item>
+          <i slot="icon" class="iconfont icon-shoucang1"></i>
+          <span slot="text">收藏</span>
+        </van-grid-item>
+        <van-grid-item>
+          <i slot="icon" class="iconfont icon-lishi1"></i>
+          <span slot="text">历史</span>
+        </van-grid-item>
+      </van-grid>
+      <!-- 单元格导航 -->
+      <van-cell title="消息通知" is-link class="xiaoxi" />
+      <van-cell title="小智同学" is-link />
+      <van-cell
+        class="logout-cell"
+        title="退出登录"
+        center
+        v-if="isLogin"
+        @click="loginout"
+      />
     </div>
-    <!-- 收藏 -->
-    <van-grid :column-num="2" class="item">
-      <van-grid-item>
-        <i slot="icon" class="iconfont icon-shoucang1"></i>
-        <span slot="text">收藏</span>
-      </van-grid-item>
-      <van-grid-item>
-        <i slot="icon" class="iconfont icon-lishi1"></i>
-        <span slot="text">历史</span>
-      </van-grid-item>
-    </van-grid>
-    <!-- 单元格导航 -->
-    <van-cell title="消息通知" is-link />
-    <van-cell title="小智同学" is-link />
-    <van-cell class="logout-cell" title="退出登录" center />
   </div>
 </template>
 <script>
+import { getuserinfo } from '@/api'
 export default {
-  name: 'My'
+  data () {
+    return {
+      userInfo: {}
+    }
+  },
+  created () {
+    this.getuserinfo()
+  },
+  computed: {
+    isLogin () {
+      return !!this.$store.state.user.token
+    }
+  },
+  methods: {
+    loginout () {
+      this.$dialog
+        .confirm({
+          title: '黑马头条',
+          message: '是否确认退出该账号'
+        })
+        .then(() => {
+          // on confirm
+          this.$store.commit('setUser', {})
+        })
+        .catch(() => {
+          // on cancel
+        })
+    },
+    async getuserinfo () {
+      if (this.isLogin) {
+        try {
+          const {
+            data: { data }
+          } = await getuserinfo()
+          this.userInfo = data
+        } catch (error) {
+          this.$toast.fail('请重新登录')
+        }
+      }
+    }
+  }
 }
 </script>
 <style lang="less">
+.my {
+  height: calc(100vh - 60px);
+  background-color: rgb(245, 239, 239);
+}
+.xiaoxi {
+  margin-top: 10px;
+}
 .logout-cell {
   text-align: center;
   color: #d86262;

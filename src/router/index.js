@@ -9,9 +9,10 @@ const routes = [
     path: '/',
     // name: 'layout',
     component: () => import('@/views/layout'),
+    redirect: '/ ',
     children: [
       {
-        path: '',
+        path: '/ ',
         name: 'home',
         component: () => import('@/views/home')
       },

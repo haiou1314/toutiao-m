@@ -8,7 +8,7 @@ Vue.use(Vuex)
 // const TOKEN_KEY = 'TOUTIAO_USER'
 export default new Vuex.Store({
   state: {
-    user: getToken()
+    user: getToken() || {}
   },
 
   getters: {

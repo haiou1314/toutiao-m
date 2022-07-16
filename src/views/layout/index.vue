@@ -3,8 +3,8 @@
     <!-- 子路由出口 -->
     <router-view></router-view>
     <!-- 底部标签 -->
-    <van-tabbar v-model="active" class="icon">
-      <van-tabbar-item to="/">
+    <van-tabbar class="icon" route>
+      <van-tabbar-item to="/ ">
         <i slot="icon" class="iconfont icon-shouye"></i>
         <span class="text">首页</span>
       </van-tabbar-item>
@@ -21,7 +21,9 @@
 
       <van-tabbar-item to="/my">
         <i slot="icon" class="iconfont icon-wode1"></i>
-        <span class="text">我的</span>
+        <span class="text">{{
+          !!$store.state.user.token ? '我的' : '未登录'
+        }}</span>
       </van-tabbar-item>
     </van-tabbar>
   </div>
@@ -36,7 +38,7 @@ export default {
   }
 }
 </script>
-<style lang="less">
+<style lang="less" scoped>
 .icon {
   .iconfont {
     font-size: 20px;
