@@ -180,6 +180,7 @@ export default {
     }
   }
   .box {
+    margin-top: 0;
     height: 65px;
     justify-content: space-around;
     display: flex;
