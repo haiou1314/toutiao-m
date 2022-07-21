@@ -52,6 +52,7 @@ export default {
         const { data } = await getArticleList(this.id, new Date())
         this.pre_timestamp = data.data.pre_timestamp
         this.article = data.data.results
+        console.log(this.article)
       } catch (error) {
         if (error.response.status === 400) {
           throw new Error(error.response.data.message)
