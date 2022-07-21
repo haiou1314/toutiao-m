@@ -4,7 +4,8 @@
     <div>
       <van-nav-bar class="navbar">
         <template #title
-          ><van-button type="default" class="van-button" round>
+          >
+          <van-button type="default" class="van-button" round @click="$router.push('/search')">
             <van-icon name="search" />
             搜索
           </van-button>
