@@ -15,6 +15,7 @@
           v-for="(item, ind) in article"
           :key="ind"
           :articleinfo="item"
+          @toDetails="toDetailsFn(item.art_id)"
         ></ArticleItem>
       </van-list>
     </van-pull-refresh>
@@ -79,6 +80,15 @@ export default {
         this.loading = false
         this.refreshing = false
       }
+    },
+    // 跳转去详情页
+    toDetailsFn (id) {
+      this.$router.push({
+        name: 'details',
+        params: {
+          id
+        }
+      })
     }
   }
 }

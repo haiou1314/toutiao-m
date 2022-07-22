@@ -1,5 +1,5 @@
 <template>
-  <div @click="fn">
+  <div @click="toDetails">
     <!-- 0张图片的 -->
     <div>
       <van-cell-group v-if="articleinfo.cover.type === 0">
@@ -58,7 +58,9 @@ export default {
     }
   },
   methods: {
-    fn () {}
+    toDetails () {
+      this.$emit('toDetails')
+    }
   }
 }
 </script>
