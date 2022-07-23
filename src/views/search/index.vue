@@ -18,7 +18,13 @@
     <SearchResult></SearchResult>
     <SearchSuggestion></SearchSuggestion> -->
 
-    <component :is="componentId" :keywords="value"></component>
+    <component
+      :is="componentId"
+      :keywords="value"
+      @goToResult="fn"
+      @gotoindex="fn2"
+      ref="demo"
+    ></component>
   </div>
 </template>
 <script>
@@ -48,6 +54,18 @@ export default {
     },
     shiqujd () {
       this.isShowSeatchResult = false
+    },
+    // 点击搜索历史去建议
+    fn (val) {
+      this.value = val
+      // console.log(val)
+    },
+    // 点击搜索建议去结果页
+    fn2 (val) {
+      val = val.replace(/<span (.*?)>(.*?)<\/span>/g)
+      val = val.replace(/undefine/g, '')
+      this.value = val
+      this.isShowSeatchResult = true
     }
   },
   computed: {

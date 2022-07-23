@@ -1,6 +1,6 @@
 <template>
   <div>
-    <van-cell v-for="(item, ind) in highlightData" :key="ind">
+    <van-cell v-for="(item, ind) in highlightData" :key="ind" @click="fn(item)">
       <template #title>
         <van-icon name="search" />
         <span v-html="item"></span>
@@ -41,6 +41,9 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    fn (val) {
+      this.$emit('gotoindex', val)
     }
   },
   watch: {

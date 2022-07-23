@@ -7,3 +7,5 @@ export * from './new.js'
 export * from './search.js'
 
 export * from './details.js'
+
+export * from './comment.js'

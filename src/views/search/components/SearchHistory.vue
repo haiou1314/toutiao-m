@@ -18,7 +18,12 @@
     </van-cell-group>
     <!-- senction -->
     <van-cell-group>
-      <van-cell :title="item" v-for="(item, ind) in arr" :key="ind">
+      <van-cell
+        :title="item"
+        v-for="(item, ind) in arr"
+        :key="ind"
+        @click="goToResult(item)"
+      >
         <template #right-icon>
           <van-icon
             name="close"
@@ -52,6 +57,11 @@ export default {
       console.log(index)
       this.arr.splice(index, 1)
       setSearchHistory(this.arr)
+    },
+    // 点击请求数据
+    goToResult (val) {
+      // console.log(val)
+      this.$emit('goToResult', val)
     }
   }
 }
