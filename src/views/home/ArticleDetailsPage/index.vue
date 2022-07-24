@@ -21,7 +21,12 @@
           </div>
         </template>
         <template #right>
-          <van-button size="mini" round>+ 关注</van-button>
+          <!-- <van-button size="mini" round>+ 关注</van-button> -->
+          <follow
+            @fn="fn"
+            :isfollowed="articleDetailsPage.is_followed"
+            :id="articleDetailsPage.aut_id"
+          ></follow>
         </template>
       </van-nav-bar>
 
@@ -42,7 +47,7 @@
         @load="onLoad"
       >
         <!-- 评论区域a -->
-        <div class="comment" v-for="(item, ind) in comment" :key="ind">
+        <!-- <div class="comment" v-for="(item, ind) in comment" :key="ind">
           <div>
             <div>
               <van-image round width="36" height="36" :src="item.aut_photo" />
@@ -72,7 +77,9 @@
               />
             </div>
           </div>
-        </div>
+        </div> -->
+        <commentsItemVue :comment="comment"></commentsItemVue>
+
         <!-- 评论区域s -->
       </van-list>
     </div>
@@ -81,14 +88,15 @@
       <van-tabbar>
         <van-tabbar-item>
           <template #icon>
-            <van-button @click="showPopup" round size="mini">写评论</van-button>
+            <van-button @click="showpopup" round size="mini">写评论</van-button>
+            <!-- 写回复 -->
             <van-popup
               v-model="show"
               position="bottom"
               :style="{ height: '20%' }"
             >
               <van-field
-                v-model="message"
+                v-model.trim="message"
                 rows="3"
                 autosize
                 type="textarea"
@@ -97,7 +105,9 @@
                 show-word-limit
               >
               </van-field>
-              <van-button class="btn" size="mini">发布</van-button>
+              <van-button class="btn" size="mini" @click="release"
+                >发布</van-button
+              >
             </van-popup>
           </template>
         </van-tabbar-item>
@@ -110,12 +120,16 @@
         </van-tabbar-item>
         <van-tabbar-item>
           <template #icon>
-            <span class="iconfont icon-shoucang"></span>
+            <shoucang
+              :articleId="articleDetailsPage.art_id"
+              :istrue="articleDetailsPage.is_followed"
+              @input="fn"
+            ></shoucang>
           </template>
         </van-tabbar-item>
         <van-tabbar-item>
           <template #icon>
-            <span class="iconfont icon-dianzan21"></span>
+            <dianzan></dianzan>
           </template>
         </van-tabbar-item>
         <van-tabbar-item>
@@ -132,27 +146,39 @@ import {
   getArticleDetailsPage,
   setArticlesId,
   getArticlesId,
-  getArticlecomment
+  getArticlecomment,
+  getRelease
 } from '@/api'
 import dayjs from '@/utils/dayjs'
+import follow from './follow'
+import commentsItemVue from './components/commentsItem.vue'
+import shoucang from './components/shoucang.vue'
+import dianzan from './components/dianzan.vue'
 export default {
   created () {
     this.getArticleDetailsPage()
     this.getArticlecomment()
   },
+  components: {
+    commentsItemVue,
+    follow,
+    shoucang,
+    dianzan
+  },
   data () {
     return {
-      showReplyToReply: true,
       loading: false,
       finished: false,
       articlesId: getArticlesId(),
       isshow: false,
       articleDetailsPage: {},
-      show: false,
       message: '',
       comment: [],
       page: 10,
-      total_count: 0
+      show: false,
+      total_count: 0,
+      aut_id: '',
+      last_id: ''
     }
   },
   // 处理时间的过滤器
@@ -162,7 +188,15 @@ export default {
       return `${relativeTime}`
     }
   },
+  computed: {
+    isLogin () {
+      return !!this.$store.state.user.token
+    }
+  },
   methods: {
+    fn () {
+      this.getArticleDetailsPage()
+    },
     // 根据文章id请求数据
     async getArticleDetailsPage () {
       // 保存文章id
@@ -175,7 +209,8 @@ export default {
         } = await getArticleDetailsPage(this.articlesId)
         this.articleDetailsPage = data
         this.isshow = true
-        // console.log(this.articleDetailsPage)
+        this.aut_id = data.aut_id
+        console.log(data)
       } catch (error) {
         this.$toast.fail('请刷新页面重试')
       }
@@ -184,9 +219,6 @@ export default {
     onClickLeft () {
       this.$router.back()
     },
-    showPopup () {
-      this.show = true
-    },
     // 获取文章评论
     async getArticlecomment () {
       try {
@@ -194,26 +226,25 @@ export default {
           data: { data }
         } = await getArticlecomment('a', this.articlesId, 10)
         this.comment = data.results
-        console.log(data.results)
         this.total_count = data.total_count
-        console.log(data)
+        this.last_id = data.last_id
       } catch (error) {
         this.$toast.fail('没有评论')
       }
 
       // console.log(data)
     },
+    // 滚动到底部再次触发获取评论
     async onLoad () {
       try {
         // 最后一个评论的id,需要等待一下让先取到this.comment的数据不然会先触发这个事件导致取不到最后一个评论的id
         setTimeout(async () => {
-          // 判断第一次取到评论没如果没有取到就不会在往下执行了
-          if (this.comment.length === 0) {
-            this.finished = true
-            return
-          }
-          const comId = this.comment[this.comment.length - 1].com_id
-          const res = await getArticlecomment('a', this.articlesId, 10, comId)
+          const res = await getArticlecomment(
+            'a',
+            this.articlesId,
+            10,
+            this.last_id
+          )
           if (res.data.data.results.length !== 0) {
             this.loading = false
             this.comment.push(...res.data.data.results)
@@ -225,9 +256,35 @@ export default {
         this.$toast.fail('获取评论失败请刷新重试')
       }
     },
-    // 评论的评论
-    replyToReply () {
-      this.showReplyToReply = true
+    showpopup () {
+      this.show = true
+    },
+    // 发布评论
+    async release () {
+      if (this.message.length === 0) {
+        this.$toast.fail('评论不能为空')
+        return
+      }
+      if (!this.isLogin) {
+        this.$toast.fail('请登录在评论')
+        return
+      }
+      // console.log(this.message)
+      // console.log(this.articlesId)
+      // console.log(this.aut_id)
+      try {
+        await getRelease(this.articlesId, this.message)
+        this.message = ''
+        // console.log(res)
+        this.show = false
+        this.getArticlecomment()
+      } catch (error) {
+        if (error.response.status === 400) {
+          this.$toast.fail('评论内容或者评论目标为空')
+        } else if (error.response.status === 401) {
+          this.$toast.fail('请登录在评论')
+        }
+      }
     }
   }
 }
@@ -359,6 +416,9 @@ export default {
   }
 }
 .dianzan {
+  color: red;
+}
+.bs {
   color: red;
 }
 </style>
