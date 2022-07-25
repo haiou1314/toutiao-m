@@ -6,7 +6,7 @@
   ></span>
 </template>
 <script>
-import { addCollect } from '@/api'
+import { addCollect, deleteCollect } from '@/api'
 export default {
   props: {
     istrue: {
@@ -21,8 +21,15 @@ export default {
       console.log(this.istrue)
       const id = this.articleId
       console.log(parseInt(id))
-      if (this.istrue === false) {
-        addCollect(id)
+      try {
+        if (this.istrue === false) {
+          await addCollect(id)
+        }
+        if (this.istrue === true) {
+          await deleteCollect(id)
+        }
+      } catch (error) {
+        this.$toast.fail('操作失败')
       }
     }
   }
