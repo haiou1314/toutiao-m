@@ -121,9 +121,8 @@
         <van-tabbar-item>
           <template #icon>
             <shoucang
-              :articleId="articleDetailsPage.art_id"
-              :istrue="articleDetailsPage.is_followed"
-              @input="fn"
+              :articleId="aut_id"
+              :istrue="is_followed"
             ></shoucang>
           </template>
         </van-tabbar-item>
@@ -157,7 +156,7 @@ import dianzan from './components/dianzan.vue'
 export default {
   created () {
     this.getArticleDetailsPage()
-    this.getArticlecomment()
+    // this.getArticlecomment()
   },
   components: {
     commentsItemVue,
@@ -178,7 +177,9 @@ export default {
       show: false,
       total_count: 0,
       aut_id: '',
-      last_id: ''
+      last_id: '',
+      is_followed: '',
+      art_id: ''
     }
   },
   // 处理时间的过滤器
@@ -210,6 +211,8 @@ export default {
         this.articleDetailsPage = data
         this.isshow = true
         this.aut_id = data.aut_id
+        this.is_followed = data.is_followed
+        this.art_id = data.art_id
         console.log(data)
       } catch (error) {
         this.$toast.fail('请刷新页面重试')
@@ -219,42 +222,30 @@ export default {
     onClickLeft () {
       this.$router.back()
     },
-    // 获取文章评论
-    async getArticlecomment () {
-      try {
-        const {
-          data: { data }
-        } = await getArticlecomment('a', this.articlesId, 10)
-        this.comment = data.results
-        this.total_count = data.total_count
-        this.last_id = data.last_id
-      } catch (error) {
-        this.$toast.fail('没有评论')
-      }
-
-      // console.log(data)
-    },
-    // 滚动到底部再次触发获取评论
+    // 滚动到底部开始获取文章评论
     async onLoad () {
       try {
-        // 最后一个评论的id,需要等待一下让先取到this.comment的数据不然会先触发这个事件导致取不到最后一个评论的id
-        setTimeout(async () => {
-          const res = await getArticlecomment(
-            'a',
-            this.articlesId,
-            10,
-            this.last_id
-          )
-          if (res.data.data.results.length !== 0) {
-            this.loading = false
-            this.comment.push(...res.data.data.results)
-          } else {
-            this.finished = true
-          }
-        }, 100)
+        const res = await getArticlecomment(
+          'a',
+          this.articlesId,
+          10,
+          this.last_id
+        )
+        // this.comment.push(...res.data.data.results)
+        this.total_count = res.data.data.total_count
+
+        if (res.data.data.results.length !== 0) {
+          this.loading = false
+          this.comment.push(...res.data.data.results)
+          this.last_id = res.data.data.last_id
+        } else {
+          this.finished = true
+        }
       } catch (error) {
-        this.$toast.fail('获取评论失败请刷新重试')
+        this.$toast.fail('获取评论失败')
       }
+
+      // console.log(res.data.data)
     },
     showpopup () {
       this.show = true

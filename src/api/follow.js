@@ -43,6 +43,6 @@ export const addCollect = target => {
 export const deleteCollect = target => {
   return request({
     method: 'DELETE',
-    url: `/v1_0/article/collections/${target}`
+    url: ` /v1_0/article/collections${target}`
   })
 }

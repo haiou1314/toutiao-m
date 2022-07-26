@@ -2,7 +2,7 @@
   <span
     class="iconfont icon-shoucang"
     :class="{ bs: istrue }"
-    @click="fn"
+    @click="islike"
   ></span>
 </template>
 <script>
@@ -17,19 +17,12 @@ export default {
     }
   },
   methods: {
-    async fn () {
-      console.log(this.istrue)
-      const id = this.articleId
-      console.log(parseInt(id))
-      try {
-        if (this.istrue === false) {
-          await addCollect(id)
-        }
-        if (this.istrue === true) {
-          await deleteCollect(id)
-        }
-      } catch (error) {
-        this.$toast.fail('操作失败')
+    async islike () {
+      console.log()
+      if (this.istrue === true) {
+        await deleteCollect(this.articleId)
+      } else {
+        await addCollect(this.articleId)
       }
     }
   }
