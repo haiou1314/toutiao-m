@@ -14,7 +14,9 @@
             />
             <span class="text">{{ userInfo.name }}</span>
           </div>
-          <van-button size="mini" class="btn">编辑资料</van-button>
+          <van-button size="mini" class="btn" @click="gotoPersonal"
+            >编辑资料</van-button
+          >
         </div>
 
         <div class="box">
@@ -99,6 +101,9 @@ export default {
           // on cancel
         })
     },
+    gotoPersonal () {
+      this.$router.push('/personal')
+    },
     async getuserinfo () {
       if (this.isLogin) {
         try {
@@ -106,6 +111,7 @@ export default {
             data: { data }
           } = await getuserinfo()
           this.userInfo = data
+          // console.log(this.userInfo)
         } catch (error) {
           this.$toast.fail('请重新登录')
         }

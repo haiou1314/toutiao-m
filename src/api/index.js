@@ -13,3 +13,5 @@ export * from './comment.js'
 export * from './release.js'
 
 export * from './follow.js'
+
+export * from './userProfile.js'

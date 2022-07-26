@@ -47,6 +47,11 @@ const routes = [
     path: '/details',
     name: 'details',
     component: () => import('@/views/home/ArticleDetailsPage')
+  },
+  {
+    path: '/personal',
+    name: 'personal',
+    component: () => import('@/views/my/PersonalEditor')
   }
 
 ]
